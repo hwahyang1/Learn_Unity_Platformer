@@ -27,21 +27,47 @@ public class PlayerController : MonoBehaviour
 		if (isDead)
 		{
 			ani.SetTrigger("Die");
+
+			// 물리연산 중단
+			rig.bodyType = RigidbodyType2D.Kinematic/*=중력이 필요하지 않은 물리연산을 진행 할 때 사용*/;
+			rig.simulated = false; // 물리연산 진행 여부
 		}
 		else
 		{
-			if (transform.position.y <= -0.485 && rig.velocity.y == 0)
-			{
-				ani.SetBool("Jump", false);
-			}
-
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
 				if (rig.velocity.y == 0)
 				{
 					rig.AddForce(new Vector2(0, jumpPower));
-					ani.SetBool("Jump", true);
 				}
+			}
+		}
+	}
+
+	// 부딪힌 GameObject 비교 할 때 성능 차이: 이름 <<<<<<<<<<<<< 태그!
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		if (collision.gameObject.tag == "Ground")
+		{
+			ani.SetBool("Jump", false);
+		}
+	}
+
+	private void OnCollisionStay2D(Collision2D collision)
+	{
+		if (collision.gameObject.tag == "Ground")
+		{
+			ani.SetBool("Jump", false);
+		}
+	}
+
+	private void OnCollisionExit2D(Collision2D collision)
+	{
+		if (collision.gameObject.tag == "Ground")
+		{
+			if (rig.velocity.y != 0)
+			{
+				ani.SetBool("Jump", true);
 			}
 		}
 	}

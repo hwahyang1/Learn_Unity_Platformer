@@ -26,49 +26,25 @@ public class Scrolling : MonoBehaviour
 	public float minY = 0f;
 	public float maxY = 0f;
 
+	private PlayerController player;
+
+	private void Start()
+	{
+		player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+	}
+
 	private void Update()
 	{
-		if (scrollObject.Count == 0)
+		if (!player.isDead)
 		{
-			int index = 0;
-			float initX = distance;
-
-			if (forceSpawn)
+			if (scrollObject.Count == 0)
 			{
-				initX = spawnX;
-			}
-
-			if (usingRandom)
-			{
-				index = Random.Range(0, prefab.Count);
-				initY = Random.Range(minY, maxY);
-			}
-
-			GameObject spawn = Instantiate(prefab[index], new Vector3(initX, initY, 0), Quaternion.identity, gameObject.transform);
-			scrollObject.Add(spawn);
-		}
-		else
-		{
-			if (scrollObject[0].transform.position.x <= destroyX)
-			{
-				GameObject target = scrollObject[0];
-
-				// 문제 방지를 위해 List에서 먼저 제거
-				scrollObject.Remove(target);
-				Destroy(target);
-
-				float newX = distance;
-
-				if (scrollObject.Count > 0)
-				{
-					newX = scrollObject[scrollObject.Count - 1].transform.position.x + distance;
-				}
-
 				int index = 0;
+				float initX = distance;
 
 				if (forceSpawn)
 				{
-					newX = spawnX;
+					initX = spawnX;
 				}
 
 				if (usingRandom)
@@ -77,14 +53,48 @@ public class Scrolling : MonoBehaviour
 					initY = Random.Range(minY, maxY);
 				}
 
-				GameObject spawn = Instantiate(prefab[index], new Vector3(newX, initY, 0), Quaternion.identity, gameObject.transform);
+				GameObject spawn = Instantiate(prefab[index], new Vector3(initX, initY, 0), Quaternion.identity, gameObject.transform);
 				scrollObject.Add(spawn);
 			}
 			else
 			{
-				foreach (GameObject target in scrollObject)
+				if (scrollObject[0].transform.position.x <= destroyX)
 				{
-					target.transform.Translate(-speed, 0, 0);
+					GameObject target = scrollObject[0];
+
+					// 문제 방지를 위해 List에서 먼저 제거
+					scrollObject.Remove(target);
+					Destroy(target);
+
+					float newX = distance;
+
+					if (scrollObject.Count > 0)
+					{
+						newX = scrollObject[scrollObject.Count - 1].transform.position.x + distance;
+					}
+
+					int index = 0;
+
+					if (forceSpawn)
+					{
+						newX = spawnX;
+					}
+
+					if (usingRandom)
+					{
+						index = Random.Range(0, prefab.Count);
+						initY = Random.Range(minY, maxY);
+					}
+
+					GameObject spawn = Instantiate(prefab[index], new Vector3(newX, initY, 0), Quaternion.identity, gameObject.transform);
+					scrollObject.Add(spawn);
+				}
+				else
+				{
+					foreach (GameObject target in scrollObject)
+					{
+						target.transform.Translate(-speed, 0, 0);
+					}
 				}
 			}
 		}
