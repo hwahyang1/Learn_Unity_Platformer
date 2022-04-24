@@ -13,20 +13,33 @@ public class PlayerController : MonoBehaviour
 
 	public bool isDead = false;
 
+	private bool isJump = false;
+	private bool isSoundPlayed = false;
+
 	private Animator ani;
 	private Rigidbody2D rig;
+
+	private GameManager manager;
 
 	private void Start()
 	{
 		ani = GetComponent<Animator>();
 		rig = GetComponent<Rigidbody2D>();
+
+		manager = GameObject.Find("GameManager").GetComponent<GameManager>();
 	}
 
 	private void Update()
 	{
 		if (isDead)
 		{
-			ani.SetTrigger("Die");
+			ani.SetBool("Die", true);
+
+			if (!isSoundPlayed)
+			{
+				manager.DeadSound();
+				isSoundPlayed = true;
+			}
 
 			// 물리연산 중단
 			rig.bodyType = RigidbodyType2D.Kinematic/*=중력이 필요하지 않은 물리연산을 진행 할 때 사용*/;
@@ -34,10 +47,13 @@ public class PlayerController : MonoBehaviour
 		}
 		else
 		{
+			isSoundPlayed = false;
+
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
 				if (rig.velocity.y == 0)
 				{
+					isJump = true;
 					rig.AddForce(new Vector2(0, jumpPower));
 				}
 			}
@@ -50,6 +66,13 @@ public class PlayerController : MonoBehaviour
 		if (collision.gameObject.tag == "Ground")
 		{
 			ani.SetBool("Jump", false);
+			
+			if (isJump)
+			{
+				manager.LandSound();
+			}
+
+			isJump = false;
 		}
 	}
 
@@ -68,6 +91,7 @@ public class PlayerController : MonoBehaviour
 			if (rig.velocity.y != 0)
 			{
 				ani.SetBool("Jump", true);
+				manager.JumpSound();
 			}
 		}
 	}
