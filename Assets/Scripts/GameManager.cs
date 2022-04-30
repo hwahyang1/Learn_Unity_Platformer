@@ -52,7 +52,10 @@ public class GameManager : MonoBehaviour
 		audioSource = GetComponent<AudioSource>();
 
 		maxScore = PlayerPrefs.GetInt("MaxScore", 0/*기본값*/);
-		// TODO: 텍스트에 최고 점수 연결하기
+		maxScoreText.text = maxScore.ToString() + "점";
+
+		nowScore = 0;
+		nowScoreText.text = nowScore.ToString() + "점";
 
 		gameOver.SetActive(false);
 	}
@@ -64,7 +67,15 @@ public class GameManager : MonoBehaviour
 			if (!gameOver.activeInHierarchy)
 			{
 				restart.sprite = btnUp;
-				PlayerPrefs.SetInt("MaxScore", maxScore);
+
+				if (PlayerPrefs.GetInt("MaxScore", 0) < nowScore)
+				{
+					PlayerPrefs.SetInt("MaxScore", nowScore);
+				}
+				PlayerPrefs.Save();
+
+				maxScoreText.text = PlayerPrefs.GetInt("MaxScore", 0).ToString() + "점";
+				nowScore = 0;
 			}
 
 			gameOver.SetActive(true);
@@ -75,11 +86,12 @@ public class GameManager : MonoBehaviour
 			{
 				nowScorePeriod = 0f;
 				nowScore += defaultScore;
-				// TODO: 현재 점수와 최고 점수 텍스트 연결하기
+				nowScoreText.text = nowScore.ToString() + "점";
 
 				if (nowScore >= maxScore)
 				{
 					maxScore = nowScore;
+					maxScoreText.text = maxScore.ToString() + "점";
 				}
 			}
 			else
@@ -114,6 +126,9 @@ public class GameManager : MonoBehaviour
 
 		audioSource.PlayOneShot(button);
 		restart.sprite = btnDown; // ?
+
+		nowScore = 0;
+		nowScoreText.text = nowScore.ToString() + "점";
 	}
 
 	/*
